@@ -2,6 +2,7 @@
 import SymmetricName from "./components/SymmetricName.svelte";
 import ChatPage from "./pages/ChatPage.svelte";
 import IntroductionPage from "./pages/IntroductionPage.svelte";
+import TopicPage from "./pages/TopicPage.svelte";
 import {currentStage, Stage} from "./store";
 </script>
 
@@ -9,6 +10,8 @@ import {currentStage, Stage} from "./store";
     <main-content>
         {#if $currentStage === Stage.Introduction}
             <IntroductionPage />
+        {:else if $currentStage === Stage.Topic}
+            <TopicPage />
         {:else if $currentStage === Stage.Chat}
             <ChatPage />
         {/if}

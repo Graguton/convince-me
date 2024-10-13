@@ -1,37 +1,51 @@
 <script lang="ts">
+import { createEventDispatcher, onMount } from "svelte";
 import { cubicOut } from "svelte/easing";
-import { slide } from "svelte/transition";
+import { fade, slide } from "svelte/transition";
+import ThinkingIndicator from "./ThinkingIndicator.svelte";
+    import InputArea from "./InputArea.svelte";
+
+const emit = createEventDispatcher<{
+    submit: string,
+}>();
 
 export let isPlayer: boolean;
 
-let message = "";
+export let message = "";
 $: charCount = message.trim().length;
 
-let isPlayerTurn = true;
+export let isPlayerTurn: boolean;
 
-let playerInputArea: HTMLElement | null = null;
+const submitMessage = () => {
+    emit("submit", message);
+};
+
+export let placeholder: string | undefined = undefined;
+export let submitButtonText = "Send it";
 </script>
+<!-- transition:slide={{duration: 500, easing: cubicOut, axis: "y"}} -->
 
 <bubble-
-    transition:slide={{duration: 500, easing: cubicOut, axis: "y"}}
     class:player={isPlayer}
+    class:backed-off={isPlayer !== isPlayerTurn}
 >
     {#if isPlayer}
-        {#if charCount === 0}
-            <placeholder->Let your thoughts be free!</placeholder->
-        {/if}
-        <input-area
-            contenteditable
-            bind:innerText={message}
-            bind:this={playerInputArea}
-        ></input-area>
+        <InputArea
+            bind:message
+            isStatic={!isPlayerTurn}
+            isPlayer={true}
+            placeholder={placeholder}
+        />
 
-        <button disabled={!isPlayerTurn}>Send it</button>
+        <button
+            disabled={!isPlayerTurn || charCount === 0}
+            on:click={submitMessage}
+        >{submitButtonText}</button>
     {:else}
-        {#if charCount === 0}
+        {#if isPlayerTurn}
             <placeholder->Your opponent listens intently…</placeholder->
         {:else}
-            <input-area>{message}</input-area>
+            <ThinkingIndicator />
         {/if}
     {/if}
 </bubble->
@@ -41,14 +55,25 @@ bubble- {
     background: #fff;
     padding: 1rem;
 
+    min-height: 2em;
+
     border-radius: 3rem / 2rem;
     color: var(--col-orange-dark);
 
     display: flex;
     flex-direction: column;
 
+    transition: opacity .1s cubic-bezier(0.215, 0.610, 0.355, 1),
+        transform .3s cubic-bezier(0.215, 0.610, 0.355, 1);
+
     &.player {
         color: var(--col-green-dark);
+    }
+
+    &.backed-off {
+        // opacity: 0.6666666;
+        transform: scale(0.85);
+        pointer-events: none;
     }
 
     > * {
