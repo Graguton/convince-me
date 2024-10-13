@@ -26,7 +26,7 @@ const submitMessage = async (message=playerMessage) => {
         if (win) {
             gameOver = true;
             isWin = true;
-            stopTimer(false);
+            stopTimer();
         } else {
             playerMessage = "";
             setPlayerTurn(true);
@@ -49,6 +49,7 @@ let opponentMessage = "";
 let gameOver = false;
 let isWin = false;
 
+let lastPauseAmountQueued = 0;
 let lastPauseAmount = 0;
 let timerStopped = true;
 let lastContinueTime = Date.now();
@@ -60,10 +61,8 @@ const updateTimer = () => {
 let intervalHandle = setInterval(updateTimer, 100);
 timerStopped = false;
 
-const stopTimer = (updateLastPauseAmount=true) => {
-    if (updateLastPauseAmount) {
-        lastPauseAmount += currentTime - lastContinueTime;
-    }
+const stopTimer = () => {
+    lastPauseAmountQueued += currentTime - lastContinueTime;
     clearInterval(intervalHandle);
     timerStopped = true;
 };
@@ -79,6 +78,7 @@ const setPlayerTurn = (value: boolean) => {
         lastContinueTime = Date.now();
         intervalHandle = setInterval(updateTimer, 100);
         timerStopped = false;
+        lastPauseAmount = lastPauseAmountQueued;
     }
 };
 

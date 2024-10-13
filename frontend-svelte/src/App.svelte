@@ -55,6 +55,11 @@ main {
         #63BD9E
     );
 
+    > main-content {
+        z-index: 2;
+        position: relative;
+    }
+
     > backdrop-content {
         display: flex;
         flex-direction: column;

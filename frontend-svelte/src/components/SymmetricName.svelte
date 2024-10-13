@@ -38,7 +38,7 @@ div {
 
     &.small {
         transform: scale(50%);
-        --offset: -2.5vh;
+        --offset: -5vh;
 
         &.flipped {
             transform: scale(50%) rotate(180deg);

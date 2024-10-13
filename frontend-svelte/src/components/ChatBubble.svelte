@@ -23,6 +23,7 @@ const submitMessage = () => {
 export let placeholder: string | undefined = undefined;
 export let submitButtonText = "Send it";
 export let submitButtonDisabled = false;
+export let submitOnEnter = true;
 </script>
 <!-- transition:slide={{duration: 500, easing: cubicOut, axis: "y"}} -->
 
@@ -36,6 +37,8 @@ export let submitButtonDisabled = false;
             isStatic={!isPlayerTurn}
             isPlayer={true}
             placeholder={placeholder}
+            {submitOnEnter}
+            on:submit
         />
 
         <button
@@ -62,7 +65,7 @@ bubble- {
     padding: 1rem;
 
     min-height: 2em;
-    max-height: 8em;
+    max-height: 12.5em;
     overflow-y: auto;
 
     border-radius: 3rem / 2rem;

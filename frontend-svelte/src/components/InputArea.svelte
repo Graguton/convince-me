@@ -1,5 +1,9 @@
 <script lang="ts">
-import { onMount } from "svelte";
+import { createEventDispatcher, onMount } from "svelte";
+
+const emit = createEventDispatcher<{
+    submit: string,
+}>();
 
 export let message = "";
 $: charCount = message.trim().length;
@@ -15,6 +19,13 @@ $: playerInputArea, (() => {
 })();
 
 export let placeholder = "Let your thoughts be free!";
+export let submitOnEnter = true;
+
+const onKeyDown = (event: KeyboardEvent) => {
+    if (submitOnEnter && event.key === "Enter") {
+        emit("submit", message);
+    }
+};
 </script>
 
 
@@ -26,6 +37,7 @@ export let placeholder = "Let your thoughts be free!";
         contenteditable
         bind:innerText={message}
         bind:this={playerInputArea}
+        on:keydown={onKeyDown}
     ></input-area>
 {:else}
     <input-area>{message}</input-area>
