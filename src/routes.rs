@@ -68,7 +68,7 @@ async fn chat_handler(
         return Ok(Json(ChatResponse { response, win: false }));
     }
 
-    let mut api_messages = messages_to_values(user_messages);
+    let mut api_messages = messages_to_values(user_messages.clone());
 
     // Add the current user message
     api_messages.push(json!({
@@ -80,8 +80,6 @@ async fn chat_handler(
 
     // Store the user's message and the assistant's response
     let messages = {
-        let mut messages = state.messages.lock().map_err(|_| anyhow::anyhow!("Failed to acquire lock"))?;
-        let user_messages = messages.entry(user_id).or_insert_with(Vec::new);
         user_messages.push(request.message);
         user_messages.push(response.clone());
         user_messages.clone()
