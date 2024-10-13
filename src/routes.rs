@@ -43,7 +43,7 @@ async fn chat_handler(
 
     if is_first_message {
         let system_message = format!(
-            "{}\n\n{}",
+            "{}\n{}",
             request.message,
             FIRST_MESSAGE_PROMPT.as_str()
         );
