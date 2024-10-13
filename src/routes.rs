@@ -1,8 +1,5 @@
-use axum::{
-    extract::State,
-    routing::{post, delete},
-    Router, Json,
-};
+use std::env;
+use axum::{extract::State, routing::{post, delete}, Router, Json};
 use serde_json::{json, Value};
 use std::sync::Arc;
 use reqwest::Client;
@@ -10,6 +7,19 @@ use anyhow::Result;
 
 use crate::models::{AppState, ChatRequest, ChatResponse, DeleteResponse};
 use crate::error::AppError;
+
+lazy_static::lazy_static! {
+    static ref FIRST_MESSAGE_PROMPT: String = env::var("FIRST_MESSAGE_PROMPT")
+        .expect("FIRST_MESSAGE_PROMPT must be defined");
+    static ref JUDGE_SYSTEM_PROMPT: String = env::var("JUDGE_SYSTEM_PROMPT")
+        .expect("JUDGE_SYSTEM_PROMPT must be defined");
+    static ref JUDGE_FIRST_MESSAGE_PROMPT: String = env::var("JUDGE_FIRST_MESSAGE_PROMPT")
+        .expect("JUDGE_FIRST_MESSAGE_PROMPT must be defined");
+    static ref JUDGE_YES_RESPONSE: String = env::var("JUDGE_YES_RESPONSE")
+        .expect("JUDGE_YES_RESPONSE must be defined");
+    static ref JUDGE_NO_RESPONSE: String = env::var("JUDGE_NO_RESPONSE")
+        .expect("JUDGE_NO_RESPONSE must be defined");
+}
 
 pub fn api_routes() -> Router<Arc<AppState>> {
     Router::new()
@@ -31,19 +41,22 @@ async fn chat_handler(
     // Check if this is the first message (to be used as system prompt)
     let is_first_message = user_messages.is_empty();
 
-    // Create the messages array for the API request
-    let mut api_messages;
-
     if is_first_message {
-        api_messages = vec![];
-        // If it's the first message, use it as the system prompt
-        api_messages.push(json!({
+        let system_message = format!(
+            "{}\n\n{}",
+            request.message,
+            FIRST_MESSAGE_PROMPT.as_str()
+        );
+
+        let response = chat_api_call(&state.client, &state.server_addr, &state.api_key, vec![json!({
             "role": "system",
-            "content": request.message
-        }));
+            "content": system_message,
+        })]).await?;
 
         // Store the system prompt in the user's message history
         user_messages.push(request.message.clone());
+
+        user_messages.push(response.clone());
 
         // Store the updated message history
         {
@@ -52,16 +65,16 @@ async fn chat_handler(
         }
 
         // Return early without making an API call or checking for win
-        return Ok(Json(ChatResponse { response: "System prompt set.".to_string(), win: false }));
-    } else {
-        api_messages = messages_to_values(user_messages);
-
-        // Add the current user message
-        api_messages.push(json!({
-            "role": "user",
-            "content": request.message
-        }));
+        return Ok(Json(ChatResponse { response, win: false }));
     }
+
+    let mut api_messages = messages_to_values(user_messages);
+
+    // Add the current user message
+    api_messages.push(json!({
+        "role": "user",
+        "content": request.message
+    }));
 
     let response = chat_api_call(&state.client, &state.server_addr, &state.api_key, api_messages).await?;
 
@@ -131,14 +144,14 @@ async fn check_for_win(
     let system_message = messages.get_mut(0).ok_or(anyhow::anyhow!("No message"))?;
 
     // Edit the system message
-    *system_message = "You must judge if you were convinced. Either say YES or NO.".to_string(); // TODO
+    *system_message = JUDGE_SYSTEM_PROMPT.clone(); // TODO
 
-    messages.push("Were you convinced? After briefly explaining your thoughts, end your response with either YES or NO.".to_string());
+    messages.push(JUDGE_FIRST_MESSAGE_PROMPT.clone());
 
     let response = chat_api_call(client, server_addr, api_key, messages_to_values(messages)).await?;
 
-    let yes_position = response.rfind("YES");
-    let no_position = response.rfind("NO");
+    let yes_position = response.rfind(JUDGE_YES_RESPONSE.as_str());
+    let no_position = response.rfind(JUDGE_NO_RESPONSE.as_str());
 
     match (yes_position, no_position) {
         (Some(yes), Some(no)) => Ok(yes > no),
@@ -156,9 +169,9 @@ fn messages_to_values(messages: Vec<String>) -> Vec<Value> {
             let role = if index == 0 {
                 "system"
             } else if index % 2 == 1 {
-                "user"
-            } else {
                 "assistant"
+            } else {
+                "user"
             };
 
             json!({
