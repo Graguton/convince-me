@@ -8,5 +8,7 @@ export enum Stage {
     Results,
 }
 
+export const TIME_LIMIT = 300;
+
 export const currentStage = writable(Stage.Introduction);
 export const topic = writable("");
