@@ -53,7 +53,9 @@ async fn chat_handler(
         .header("Authorization", format!("Bearer {}", state.api_key))
         .header("Content-Type", "application/json")
         .json(&json!({
-            "model": "",
+            "max_tokens": 2048,
+            "frequency_penalty": 0.5,
+            "temperature": 0.7,
             "messages": api_messages
         }))
         .send()
