@@ -1,6 +1,8 @@
 <script lang="ts">
+import { TIME_LIMIT } from "../store";
+
 export let displayedTime: number;
-export let maxTime = 300;
+export let maxTime = TIME_LIMIT;
 </script>
 
 <timer->

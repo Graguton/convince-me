@@ -23,11 +23,12 @@ const submitMessage = async () => {
         gameOver = true;
         isWin = true;
         pauseTimer();
+        isPlayerTurn = false;
     } else {
+        isPlayerTurn = true;
         playerMessage = "";
     }
 
-    isPlayerTurn = true;
 };
 
 let playerMessage = "";
@@ -41,7 +42,7 @@ let lastPauseAmount = 0;
 let lastPauseTime = Date.now();
 let currentTime = Date.now();
 $: nSecondsElapsed = Math.floor(
-    (isPlayerTurn && !gameOver
+    (isPlayerTurn
         ? lastPauseAmount + currentTime - lastPauseTime
         : lastPauseAmount
     ) / 1000
@@ -65,11 +66,12 @@ $: isPlayerTurn, (() => {
     }
 })();
 
-// $: nSecondsElapsed, (() => {
-//     if (nSecondsElapsed > TIME_LIMIT && isPlayerTurn) {
-//         gameOver = true;
-//     }
-// })();
+$: nSecondsElapsed, (() => {
+    if (nSecondsElapsed > TIME_LIMIT && isPlayerTurn) {
+        gameOver = true;
+        pauseTimer();
+    }
+})();
 
 </script>
 
@@ -95,7 +97,7 @@ $: isPlayerTurn, (() => {
     {:else if isWin}
         <p>Congratulations! You convinced the AI in {nSecondsElapsed} seconds.</p>
     {:else}
-        <p>Wasn't quite persuasive enough, sorry!</p>
+        <p>You weren't quite persuasive enough, sorry!</p>
     {/if}
 
     <ChatBubble

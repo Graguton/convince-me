@@ -70,6 +70,7 @@ placeholder- {
     opacity: 0.3;
     user-select: none;
     pointer-events: none;
+    padding: 0.5rem;
 
     &.is-player {
         position: absolute;
@@ -80,6 +81,7 @@ input-area {
     display: block;
     width: 40ch;
     word-break: break-word;
+    padding: 0.5rem;
 
     outline-color: var(--col-green-dark);
 }
