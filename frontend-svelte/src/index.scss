@@ -25,9 +25,12 @@ body {
     }
 }
 
+h1,
+h2 {
+    font-family: var(--font-head);
+}
 
 h1 {
-    font-family: var(--font-head);
     font-size: 3rem;
 }
 
@@ -77,5 +80,6 @@ button {
 
     &[disabled] {
         opacity: 0.3;
+        pointer-events: none;
     }
 }

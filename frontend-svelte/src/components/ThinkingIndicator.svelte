@@ -1,3 +1,7 @@
+<script lang="ts">
+import { fade } from "svelte/transition";
+</script>
+
 <div>
     <period-></period->
     <period- style="--animation-delay: 1.5s;"></period->
@@ -18,7 +22,7 @@ div {
 
         background: currentColor;
 
-        animation: spin 4.5s infinite;
+        animation: spin 4.5s infinite cubic-bezier(0.645, 0.045, 0.355, 1);
 
         animation-delay: var(--animation-delay);
 
@@ -29,14 +33,12 @@ div {
 @keyframes spin {
     0% {
         transform: scale(1) rotate(0);
-        animation-timing-function: cubic-bezier(0.645, 0.045, 0.355, 1);
     }
 
     
     50% {
         transform: scale(2) rotate(5turn);
         opacity: 0.25;
-        animation-timing-function: cubic-bezier(0.645, 0.045, 0.355, 1);
     }
     
     

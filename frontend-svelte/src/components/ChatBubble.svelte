@@ -1,8 +1,9 @@
 <script lang="ts">
-import { createEventDispatcher } from "svelte";
+import { createEventDispatcher, onMount } from "svelte";
 import { cubicOut } from "svelte/easing";
-import { slide } from "svelte/transition";
+import { fade, slide } from "svelte/transition";
 import ThinkingIndicator from "./ThinkingIndicator.svelte";
+    import InputArea from "./InputArea.svelte";
 
 const emit = createEventDispatcher<{
     submit: string,
@@ -15,35 +16,31 @@ $: charCount = message.trim().length;
 
 export let isPlayerTurn = true;
 
-let playerInputArea: HTMLElement | null = null;
 const submitMessage = () => {
     emit("submit", message);
 };
+
+export let placeholder: string | undefined = undefined;
+export let submitButtonText = "Send it";
 </script>
+<!-- transition:slide={{duration: 500, easing: cubicOut, axis: "y"}} -->
 
 <bubble-
-    transition:slide={{duration: 500, easing: cubicOut, axis: "y"}}
     class:player={isPlayer}
     class:backed-off={isPlayer !== isPlayerTurn}
 >
     {#if isPlayer}
-        {#if charCount === 0}
-            <placeholder->Let your thoughts be free!</placeholder->
-        {/if}
-        {#if isPlayerTurn}
-            <input-area
-                contenteditable
-                bind:innerText={message}
-                bind:this={playerInputArea}
-            ></input-area>
-        {:else}
-            <input-area>{message}</input-area>
-        {/if}
+        <InputArea
+            bind:message
+            isStatic={!isPlayerTurn}
+            isPlayer={true}
+            placeholder={placeholder}
+        />
 
         <button
-            disabled={!isPlayerTurn}
+            disabled={!isPlayerTurn || charCount === 0}
             on:click={submitMessage}
-        >Send it</button>
+        >{submitButtonText}</button>
     {:else}
         {#if isPlayerTurn}
             <placeholder->Your opponent listens intently…</placeholder->
@@ -57,6 +54,8 @@ const submitMessage = () => {
 bubble- {
     background: #fff;
     padding: 1rem;
+
+    min-height: 2em;
 
     border-radius: 3rem / 2rem;
     color: var(--col-orange-dark);

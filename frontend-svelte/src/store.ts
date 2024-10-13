@@ -3,6 +3,7 @@ import IntroductionPage from "./pages/IntroductionPage.svelte";
 
 export enum Stage {
     Introduction,
+    Topic,
     Chat,
     Results,
 }

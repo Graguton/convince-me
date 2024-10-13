@@ -1,9 +1,8 @@
 <script lang="ts">
 import {currentStage, Stage} from "../store";
-import ChatPage from "./ChatPage.svelte";
 
 const advance = () => {
-    $currentStage = Stage.Chat;
+    $currentStage = Stage.Topic;
 };
 </script>
 
