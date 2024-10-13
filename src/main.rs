@@ -12,6 +12,7 @@ use tokio::signal;
 use tower_http::trace::TraceLayer;
 use tower_http::timeout::TimeoutLayer;
 use tower_http::services::ServeDir;
+use tower_http::cors::{CorsLayer, Any};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 use dotenv::dotenv;
 use anyhow::Context;
@@ -43,6 +44,11 @@ async fn main() -> anyhow::Result<()> {
         messages: Mutex::new(HashMap::new()),
     });
 
+    let cors = CorsLayer::new()
+        .allow_origin(Any)
+        .allow_methods(Any)
+        .allow_headers(Any);
+
     // Build our application with routes
     let app = Router::new()
         .nest("/api", api_routes())
@@ -51,6 +57,7 @@ async fn main() -> anyhow::Result<()> {
             TraceLayer::new_for_http(),
             TimeoutLayer::new(Duration::from_secs(60)),
         ))
+        .layer(cors)
         .with_state(state);
 
     // Run our application
