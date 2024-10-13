@@ -1,13 +1,38 @@
 <script lang="ts">
 import ChatBubble from "../components/ChatBubble.svelte";
 import Timer from "../components/Timer.svelte";
-import {TIME_LIMIT, topic} from "../store";
+import {TIME_LIMIT, topic, user} from "../store";
     
 let isPlayerTurn = true;
 
-const submitMessage = () => {
+const submitMessage = async () => {
     isPlayerTurn = false;
+    opponentMessage = "";
+
+    const {response, win} = await (await fetch(`/api/chat/${user}`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({message: playerMessage}),
+    })).json();
+
+    opponentMessage = response;
+
+    if (win) {
+        gameOver = true;
+        isWin = true;
+        pauseTimer();
+    } else {
+        playerMessage = "";
+    }
+
+    isPlayerTurn = true;
 };
+
+let playerMessage = "";
+let opponentMessage = "";
+
 
 let gameOver = false;
 let isWin = false;
@@ -16,7 +41,7 @@ let lastPauseAmount = 0;
 let lastPauseTime = Date.now();
 let currentTime = Date.now();
 $: nSecondsElapsed = Math.floor(
-    (isPlayerTurn
+    (isPlayerTurn && !gameOver
         ? lastPauseAmount + currentTime - lastPauseTime
         : lastPauseAmount
     ) / 1000
@@ -29,12 +54,12 @@ let intervalHandle = setInterval(updateTimer, 100);
 const pauseTimer = () => {
     lastPauseAmount = lastPauseAmount + currentTime - lastPauseTime;
     lastPauseTime = Date.now();
+    clearInterval(intervalHandle);
 };
 
 $: isPlayerTurn, (() => {
     if (!isPlayerTurn) {
         pauseTimer();
-        clearInterval(intervalHandle);
     } else {
         intervalHandle = setInterval(updateTimer, 100);
     }
@@ -56,8 +81,10 @@ $: isPlayerTurn, (() => {
 
     <ChatBubble
         isPlayer={true}
-        isPlayerTurn={isPlayerTurn}
+        isPlayerTurn={isPlayerTurn && !gameOver}
+        submitButtonDisabled={gameOver}
         on:submit={submitMessage}
+        bind:message={playerMessage}
     />
 
     {#if !gameOver}
@@ -66,7 +93,7 @@ $: isPlayerTurn, (() => {
             maxTime={TIME_LIMIT}
         />
     {:else if isWin}
-        <p>Congratulations! You convinced the AI.</p>
+        <p>Congratulations! You convinced the AI in {nSecondsElapsed} seconds.</p>
     {:else}
         <p>Wasn't quite persuasive enough, sorry!</p>
     {/if}
@@ -74,13 +101,14 @@ $: isPlayerTurn, (() => {
     <ChatBubble
         isPlayer={false}
         isPlayerTurn={isPlayerTurn}
+        message={opponentMessage}
     />
 </chat-container>
 
 <style lang="scss">
 chat-container {
     display: grid;
-    grid-template-rows: 1fr 1fr auto 1fr 1fr;
+    grid-template-rows: repeat(4, auto);
     align-items: baseline;
 }
 
@@ -91,6 +119,7 @@ div {
 p {
     margin: 0;
     padding: 0;
+    text-align: center;
 }
 
 topic- {
