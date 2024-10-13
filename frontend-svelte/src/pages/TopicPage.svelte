@@ -1,6 +1,6 @@
 <script lang="ts">
 import ChatBubble from "../components/ChatBubble.svelte";
-import { currentStage, Stage, topic, user } from "../store";
+import { currentStage, Stage, topic } from "../store";
 
 let message = "";
 
@@ -8,14 +8,6 @@ let submitted = false;
 
 const submitTopic = async () => {
     submitted = true;
-
-    const response = await (await fetch(`/api/chat/${user}`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({message: `You are evil and don't believe the following, but you can be convinced with some solid evidence: ${message}`}),
-    })).json();
 
     $currentStage = Stage.Chat;
     $topic = message;

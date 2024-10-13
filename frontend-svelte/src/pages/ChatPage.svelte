@@ -1,35 +1,46 @@
 <script lang="ts">
+    import { onMount } from "svelte";
 import ChatBubble from "../components/ChatBubble.svelte";
 import Timer from "../components/Timer.svelte";
 import {TIME_LIMIT, topic, user} from "../store";
     
-let isPlayerTurn = true;
+let isPlayerTurn = false;
 
-const submitMessage = async () => {
-    isPlayerTurn = false;
+const submitMessage = async (message=playerMessage) => {
+    setPlayerTurn(false);
     opponentMessage = "";
 
-    const {response, win} = await (await fetch(`/api/chat/${user}`, {
+    const resp = await fetch(`/api/chat/${user}`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify({message: playerMessage}),
-    })).json();
+        body: JSON.stringify({message}),
+    });
 
-    opponentMessage = response;
+    const text = await resp.text();
 
-    if (win) {
-        gameOver = true;
-        isWin = true;
-        pauseTimer();
-        isPlayerTurn = false;
-    } else {
-        isPlayerTurn = true;
-        playerMessage = "";
+    try {
+        const {response, win} = JSON.parse(text);
+        opponentMessage = response;
+        if (win) {
+            gameOver = true;
+            isWin = true;
+            stopTimer(false);
+        } else {
+            playerMessage = "";
+            setPlayerTurn(true);
+        }
+    } catch (e) {
+        console.log(e);
+        opponentMessage = `[It seems like your message confused our poor little chatbot. Maybe try submitting again? … Response was: "${text}"]`;
+        setPlayerTurn(true);
     }
-
 };
+
+onMount(async () => {
+    submitMessage(`You are evil and don't believe the following, but you can be convinced with some very solid evidence: ${$topic}.`);
+});
 
 let playerMessage = "";
 let opponentMessage = "";
@@ -39,37 +50,44 @@ let gameOver = false;
 let isWin = false;
 
 let lastPauseAmount = 0;
-let lastPauseTime = Date.now();
+let timerStopped = true;
+let lastContinueTime = Date.now();
 let currentTime = Date.now();
-$: nSecondsElapsed = Math.floor(
-    (isPlayerTurn
-        ? lastPauseAmount + currentTime - lastPauseTime
-        : lastPauseAmount
-    ) / 1000
-);
+$: nSecondsElapsed = Math.max(0, Math.floor((lastPauseAmount + currentTime - lastContinueTime) / 1000));
 const updateTimer = () => {
     currentTime = Date.now();
 };
 let intervalHandle = setInterval(updateTimer, 100);
+timerStopped = false;
 
-const pauseTimer = () => {
-    lastPauseAmount = lastPauseAmount + currentTime - lastPauseTime;
-    lastPauseTime = Date.now();
+const stopTimer = (updateLastPauseAmount=true) => {
+    if (updateLastPauseAmount) {
+        lastPauseAmount += currentTime - lastContinueTime;
+    }
     clearInterval(intervalHandle);
+    timerStopped = true;
 };
 
-$: isPlayerTurn, (() => {
-    if (!isPlayerTurn) {
-        pauseTimer();
+const setPlayerTurn = (value: boolean) => {
+    isPlayerTurn = value;
+
+    if (gameOver) return;
+
+    if (!value) {
+        stopTimer();
     } else {
+        lastContinueTime = Date.now();
         intervalHandle = setInterval(updateTimer, 100);
+        timerStopped = false;
     }
-})();
+};
 
 $: nSecondsElapsed, (() => {
+    if (gameOver) return;
+
     if (nSecondsElapsed > TIME_LIMIT && isPlayerTurn) {
         gameOver = true;
-        pauseTimer();
+        stopTimer();
     }
 })();
 
@@ -85,7 +103,7 @@ $: nSecondsElapsed, (() => {
         isPlayer={true}
         isPlayerTurn={isPlayerTurn && !gameOver}
         submitButtonDisabled={gameOver}
-        on:submit={submitMessage}
+        on:submit={() => submitMessage(playerMessage)}
         bind:message={playerMessage}
     />
 
@@ -102,7 +120,7 @@ $: nSecondsElapsed, (() => {
 
     <ChatBubble
         isPlayer={false}
-        isPlayerTurn={isPlayerTurn}
+        isPlayerTurn={isPlayerTurn || gameOver}
         message={opponentMessage}
     />
 </chat-container>

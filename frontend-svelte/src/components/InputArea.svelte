@@ -8,11 +8,11 @@ export let isPlayer: boolean;
 export let isStatic = false;
 
 let playerInputArea: HTMLElement | null = null;
-onMount(() => {
+$: playerInputArea, (() => {
     if (playerInputArea !== null) {
         playerInputArea.focus();
     }
-});
+})();
 
 export let placeholder = "Let your thoughts be free!";
 </script>

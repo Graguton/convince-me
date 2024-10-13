@@ -37,13 +37,13 @@ div {
 
     
     50% {
-        transform: scale(2) rotate(5turn);
+        transform: scale(2) rotate(2turn);
         opacity: 0.25;
     }
     
     
     100% {
-        transform: scale(1) rotate(10turn);
+        transform: scale(1) rotate(4turn);
     }
 }
 </style>
