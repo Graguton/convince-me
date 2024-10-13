@@ -1,0 +1,87 @@
+* {
+    box-sizing: border-box;
+}
+
+:root {
+    
+
+    --font-head: Krona One, sans-serif;
+    --font-body: Josefin Sans, sans-serif;
+
+    --col-green-dark: #366D5A;
+    --col-orange-dark: #95601B;
+}
+
+body {
+    margin: 0;
+    width: 100vw;
+    height: 100vh;
+    display: grid;
+    place-items: center;
+    font-family: var(--font-body);
+
+    > * {
+        grid-area: 1/1;
+    }
+}
+
+
+h1 {
+    font-family: var(--font-head);
+    font-size: 3rem;
+}
+
+button {
+    margin: 0;
+    font-size: inherit;
+    font-family: inherit;
+    padding: 0.25em;
+    border: none;
+    position: relative;
+
+    background: #fff;
+    color: var(--col-green-dark);
+    cursor: pointer;
+
+    filter: drop-shadow(0 8px 0 var(--col-green-dark));
+
+    transition: transform 0.2s var(--ease-function),
+            filter 0.2s var(--ease-function);
+
+    --ease-function: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+    &::before,
+    &::after {
+        content: " ";
+        position: absolute;
+        top: 0;
+        background: url("./assets/button-side.svg");
+        height: 100%;
+        background-size: 100%;
+        aspect-ratio: 13/46;
+    }
+
+    &::before {
+        right: calc(100% - 0.5px);
+    }
+
+    &::after {
+        left: calc(100% - 0.5px);
+        transform: scaleX(-1);
+    }
+
+    &:hover {
+        transform: translateY(-4px);
+        filter: drop-shadow(0 12px 0 var(--col-green-dark));
+
+        --ease-function: cubic-bezier(0.165, 0.84, 0.44, 1);
+        transition-duration: .05s;
+    }
+
+    &:active {
+        transform: translateY(8px);
+        filter: drop-shadow(0 0 0 var(--col-green-dark));
+
+        --ease-function: cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
+}
