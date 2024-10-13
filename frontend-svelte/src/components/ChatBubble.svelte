@@ -11,10 +11,10 @@ const emit = createEventDispatcher<{
 
 export let isPlayer: boolean;
 
-let message = "";
+export let message = "";
 $: charCount = message.trim().length;
 
-export let isPlayerTurn = true;
+export let isPlayerTurn: boolean;
 
 const submitMessage = () => {
     emit("submit", message);
@@ -71,8 +71,8 @@ bubble- {
     }
 
     &.backed-off {
-        opacity: 0.75;
-        transform: scale(0.9);
+        // opacity: 0.6666666;
+        transform: scale(0.85);
         pointer-events: none;
     }
 

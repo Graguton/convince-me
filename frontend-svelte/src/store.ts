@@ -9,3 +9,4 @@ export enum Stage {
 }
 
 export const currentStage = writable(Stage.Introduction);
+export const topic = writable("");
