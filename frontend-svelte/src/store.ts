@@ -12,3 +12,5 @@ export const TIME_LIMIT = 300;
 
 export const currentStage = writable(Stage.Introduction);
 export const topic = writable("");
+
+export const user = crypto.randomUUID();

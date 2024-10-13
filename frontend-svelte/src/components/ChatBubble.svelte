@@ -22,6 +22,7 @@ const submitMessage = () => {
 
 export let placeholder: string | undefined = undefined;
 export let submitButtonText = "Send it";
+export let submitButtonDisabled = false;
 </script>
 <!-- transition:slide={{duration: 500, easing: cubicOut, axis: "y"}} -->
 
@@ -38,12 +39,17 @@ export let submitButtonText = "Send it";
         />
 
         <button
-            disabled={!isPlayerTurn || charCount === 0}
+            disabled={!isPlayerTurn || charCount === 0 || submitButtonDisabled}
             on:click={submitMessage}
         >{submitButtonText}</button>
     {:else}
         {#if isPlayerTurn}
-            <placeholder->Your opponent listens intently…</placeholder->
+            <InputArea
+                bind:message
+                isStatic={true}
+                isPlayer={false}
+                placeholder="Your opponent listens intently…"
+            />
         {:else}
             <ThinkingIndicator />
         {/if}

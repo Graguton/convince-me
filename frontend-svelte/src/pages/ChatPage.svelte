@@ -1,13 +1,36 @@
 <script lang="ts">
 import ChatBubble from "../components/ChatBubble.svelte";
 import Timer from "../components/Timer.svelte";
-import {TIME_LIMIT, topic} from "../store";
+import {TIME_LIMIT, topic, user} from "../store";
     
 let isPlayerTurn = true;
 
-const submitMessage = () => {
+const submitMessage = async () => {
     isPlayerTurn = false;
+
+    const {response, win} = await (await fetch(`/api/chat/${user}`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({message: playerMessage}),
+    })).json();
+
+    opponentMessage = response;
+
+    if (win) {
+        gameOver = true;
+        isWin = true;
+    } else {
+        playerMessage = "";
+    }
+
+    isPlayerTurn = true;
 };
+
+let playerMessage = "";
+let opponentMessage = "";
+
 
 let gameOver = false;
 let isWin = false;
@@ -58,6 +81,7 @@ $: isPlayerTurn, (() => {
         isPlayer={true}
         isPlayerTurn={isPlayerTurn}
         on:submit={submitMessage}
+        bind:message={playerMessage}
     />
 
     {#if !gameOver}
@@ -74,6 +98,7 @@ $: isPlayerTurn, (() => {
     <ChatBubble
         isPlayer={false}
         isPlayerTurn={isPlayerTurn}
+        message={opponentMessage}
     />
 </chat-container>
 
