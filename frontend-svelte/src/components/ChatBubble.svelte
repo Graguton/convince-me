@@ -1,37 +1,54 @@
 <script lang="ts">
+import { createEventDispatcher } from "svelte";
 import { cubicOut } from "svelte/easing";
 import { slide } from "svelte/transition";
+import ThinkingIndicator from "./ThinkingIndicator.svelte";
+
+const emit = createEventDispatcher<{
+    submit: string,
+}>();
 
 export let isPlayer: boolean;
 
 let message = "";
 $: charCount = message.trim().length;
 
-let isPlayerTurn = true;
+export let isPlayerTurn = true;
 
 let playerInputArea: HTMLElement | null = null;
+const submitMessage = () => {
+    emit("submit", message);
+};
 </script>
 
 <bubble-
     transition:slide={{duration: 500, easing: cubicOut, axis: "y"}}
     class:player={isPlayer}
+    class:backed-off={isPlayer !== isPlayerTurn}
 >
     {#if isPlayer}
         {#if charCount === 0}
             <placeholder->Let your thoughts be free!</placeholder->
         {/if}
-        <input-area
-            contenteditable
-            bind:innerText={message}
-            bind:this={playerInputArea}
-        ></input-area>
-
-        <button disabled={!isPlayerTurn}>Send it</button>
-    {:else}
-        {#if charCount === 0}
-            <placeholder->Your opponent listens intently…</placeholder->
+        {#if isPlayerTurn}
+            <input-area
+                contenteditable
+                bind:innerText={message}
+                bind:this={playerInputArea}
+            ></input-area>
         {:else}
             <input-area>{message}</input-area>
+        {/if}
+
+        <button
+            disabled={!isPlayerTurn}
+            on:click={submitMessage}
+        >Send it</button>
+    {:else}
+        {#if isPlayerTurn}
+            <placeholder->Your opponent listens intently…</placeholder->
+        {:else}
+            <ThinkingIndicator />
         {/if}
     {/if}
 </bubble->
@@ -47,8 +64,17 @@ bubble- {
     display: flex;
     flex-direction: column;
 
+    transition: opacity .1s cubic-bezier(0.215, 0.610, 0.355, 1),
+        transform .3s cubic-bezier(0.215, 0.610, 0.355, 1);
+
     &.player {
         color: var(--col-green-dark);
+    }
+
+    &.backed-off {
+        opacity: 0.75;
+        transform: scale(0.9);
+        pointer-events: none;
     }
 
     > * {

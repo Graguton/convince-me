@@ -5,13 +5,24 @@ import ChatBubble from "../components/ChatBubble.svelte";
 let currentMesssage = "";
 let opponentMessage = "";
 
-let isCurrentTurn = true;
+let isPlayerTurn = true;
+
+const submitMessage = () => {
+    isPlayerTurn = false;
+};
 </script>
 
 <chat-container>
-    <ChatBubble isPlayer={true} />
+    <ChatBubble
+        isPlayer={true}
+        isPlayerTurn={isPlayerTurn}
+        on:submit={submitMessage}
+    />
 
-    <ChatBubble isPlayer={false} />
+    <ChatBubble
+        isPlayer={false}
+        isPlayerTurn={isPlayerTurn}
+    />
 </chat-container>
 
 <style lang="scss">
