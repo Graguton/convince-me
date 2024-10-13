@@ -12,13 +12,13 @@ pub struct AppState {
 
 #[derive(Deserialize)]
 pub struct ChatRequest {
-    pub user_id: String,
     pub message: String,
 }
 
 #[derive(Serialize)]
 pub struct ChatResponse {
     pub response: String,
+    pub win: bool,
 }
 
 #[derive(Serialize)]
