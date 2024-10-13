@@ -46,7 +46,7 @@ async fn main() -> anyhow::Result<()> {
     // Build our application with a route
     let app = Router::new()
         .route("/chat", post(chat_handler))
-        .nest_service("/", ServeDir::new("frontend/build"))
+        .nest_service("/", ServeDir::new("frontend-svelte/dist"))
         .layer((
             TraceLayer::new_for_http(),
             // Graceful shutdown will wait for outstanding requests to complete. Add a timeout so
