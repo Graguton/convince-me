@@ -1,11 +1,17 @@
 <script>
-    import SymmetricName from "./components/SymmetricName.svelte";
-
+import SymmetricName from "./components/SymmetricName.svelte";
+import ChatPage from "./pages/ChatPage.svelte";
+import IntroductionPage from "./pages/IntroductionPage.svelte";
+import {currentStage, Stage} from "./store";
 </script>
 
 <main>
     <main-content>
-        <button>Play</button>
+        {#if $currentStage === Stage.Introduction}
+            <IntroductionPage />
+        {:else if $currentStage === Stage.Chat}
+            <ChatPage />
+        {/if}
     </main-content>
 
     <backdrop-content>
@@ -39,7 +45,7 @@ main {
     font-size: 1.5rem;
     color: #fff;
 
-    background: linear-gradient(
+    background: radial-gradient(circle at center, #0000 50%, #0000002f 75%, #0000007f), linear-gradient(
         #FFA322,
         #F0BD43 30%,
         #BCCB84 60%,
@@ -53,10 +59,6 @@ main {
         justify-content: center;
 
         pointer-events: none;
-    }
-
-    button {
-        font-size: 2rem;
     }
 }
 </style>
