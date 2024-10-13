@@ -142,7 +142,7 @@ async fn check_for_win(
     let system_message = messages.get_mut(0).ok_or(anyhow::anyhow!("No message"))?;
 
     // Edit the system message
-    *system_message = JUDGE_SYSTEM_PROMPT.clone(); // TODO
+    *system_message = format!("{}\"{}\"", JUDGE_SYSTEM_PROMPT.clone(), system_message);
 
     messages.push(JUDGE_FIRST_MESSAGE_PROMPT.clone());
 
