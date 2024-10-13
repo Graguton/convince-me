@@ -31,48 +31,37 @@ h1 {
     font-size: 3rem;
 }
 
-button {
+button,
+input {
     margin: 0;
     font-size: inherit;
     font-family: inherit;
-    padding: 0.25em;
+    color: inherit;
     border: none;
+}
+
+button {
+    padding: 0.25em 1em;
     position: relative;
 
-    background: #fff;
+    background: repeating-linear-gradient(-45deg, #fff 0, #fff 10px, #efe 10px, #efe 20px);
     color: var(--col-green-dark);
     cursor: pointer;
-
-    filter: drop-shadow(0 8px 0 var(--col-green-dark));
+    border-radius: 2rem / 1rem;
+    box-shadow: 0 8px 0 var(--col-green-dark),
+        0 8px 16px var(--col-green-dark);
 
     transition: transform 0.2s var(--ease-function),
-            filter 0.2s var(--ease-function);
+            box-shadow 0.2s var(--ease-function);
 
     --ease-function: cubic-bezier(0.175, 0.885, 0.32, 1.275);
 
-    &::before,
-    &::after {
-        content: " ";
-        position: absolute;
-        top: 0;
-        background: url("./assets/button-side.svg");
-        height: 100%;
-        background-size: 100%;
-        aspect-ratio: 13/46;
-    }
-
-    &::before {
-        right: calc(100% - 0.5px);
-    }
-
-    &::after {
-        left: calc(100% - 0.5px);
-        transform: scaleX(-1);
-    }
-
     &:hover {
         transform: translateY(-4px);
-        filter: drop-shadow(0 12px 0 var(--col-green-dark));
+        box-shadow: 0 12px 0 var(--col-green-dark),
+            0 12px 20px var(--col-green-dark);
+
+        filter: brightness(1.25);
 
         --ease-function: cubic-bezier(0.165, 0.84, 0.44, 1);
         transition-duration: .05s;
@@ -80,8 +69,13 @@ button {
 
     &:active {
         transform: translateY(8px);
-        filter: drop-shadow(0 0 0 var(--col-green-dark));
+        box-shadow: 0 0 0 var(--col-green-dark),
+            0 1px 4px var(--col-green-dark);
 
         --ease-function: cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
+
+    &[disabled] {
+        opacity: 0.3;
     }
 }
