@@ -62,6 +62,8 @@ bubble- {
     padding: 1rem;
 
     min-height: 2em;
+    max-height: 8em;
+    overflow-y: auto;
 
     border-radius: 3rem / 2rem;
     color: var(--col-orange-dark);
@@ -74,12 +76,16 @@ bubble- {
 
     &.player {
         color: var(--col-green-dark);
+        align-self: end;
+    }
+
+    &:not(.player) {
+        align-self: start;
     }
 
     &.backed-off {
         // opacity: 0.6666666;
         transform: scale(0.85);
-        pointer-events: none;
     }
 
     > * {
